@@ -10,8 +10,6 @@ function Header() {
           <div className='flex items-center space-x-2'>
             {/* 로고 아이콘 */}
             <a href="/"><RollingIcon className="w-6 h-6" /></a>
-            {/* 로고 텍스트 */}
-            <a className="text-20-bold text-gray-900" href="/">Rolling</a>
           </div>
 
           {/* "롤링 페이퍼 만들기" 버튼 영역 */}
