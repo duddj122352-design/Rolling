@@ -1,16 +1,12 @@
 import './App.css';
-import Header from './Header/Header.jsx';
-import MessageHeader from './Header/MessageHeader.jsx';
-import MobileHeader from './Header/MobileHeader.jsx';
+import Option from './Option/Option.jsx';
 
 
 
 function App() {
   return (
     <>
-      <Header/>
-      <MessageHeader />
-      <MobileHeader/>
+      <Option/>
     </>
 
   );
