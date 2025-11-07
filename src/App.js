@@ -1,11 +1,17 @@
-import logo from './logo.svg';
 import './App.css';
-import Test from './test.jsx';
+import Option from './Option/Option.jsx';
+import Header from './Header/Header.jsx'
+import MessageHeader from './Header/MessageHeader.jsx'
+import MobileHeader from './Header/MobileHeader.jsx'
+
 
 function App() {
   return (
     <>
-      <Test />
+      <Option/>
+      <Header/>
+      <MessageHeader/>
+      <MobileHeader/>
     </>
 
   );
