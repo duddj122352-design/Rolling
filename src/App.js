@@ -1,11 +1,11 @@
 import logo from './logo.svg';
 import './App.css';
-import Button from './Button/Button';
+import Primary from './Button/Primary.jsx';
 
 function App() {
   return (
     <>
-      <Button />
+      <Primary />
     </>
   );
 }
