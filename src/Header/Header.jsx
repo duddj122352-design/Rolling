@@ -1,19 +1,28 @@
-import React from 'react'
+import React from 'react';
+import { ReactComponent as RollingIcon } from './img/logo.svg';
 
 function Header() {
-  return(
+  return (
     <>
-    <header className='bg-white sticky top-0 z-50 text-20-bold'>
-      <div className="flex items-center justify-between px-4">
-        {/* Rolling 로고 */}
-        <div className='flex items-center space-x-2'>
-          <span className="text-xl text-purple-600"></span>
-          <span className="text-xl font-semibold text-gray-800">Rolling</span>
+      <header className='bg-white sticky top-0 z-50'>
+        <div className="flex items-center justify-between px-6">
+          {/* Rolling 로고 영역 */}
+          <div className='flex items-center space-x-2'>
+            {/* 로고 아이콘 */}
+            <RollingIcon className="w-6 h-6" />
+            {/* 로고 텍스트 */}
+            <span className="text-xl font-bold text-gray-900">Rolling</span>
+          </div>
+
+          {/* "롤링 페이퍼 만들기" 버튼 영역 */}
+          <button
+            className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-100 transition duration-150 ease-in-out">
+            롤링 페이퍼 만들기
+          </button>
         </div>
-      </div>
-    </header>
+      </header>
     </>
   );
 }
 
-export default Header
+export default Header;
