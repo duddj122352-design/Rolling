@@ -1,13 +1,27 @@
-import logo from './logo.svg';
 import './App.css';
-import Test from './test.jsx';
+import Toast from './Toast/Toast';
 
 function App() {
   return (
-    <>
-      <Test />
-    </>
-
+    <div
+      className="App"
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#FFFFFF',
+      }}
+    >
+      <>
+        <Toast
+          isOpen
+          onClose={() => {}}
+          message="URL이 복사 되었습니다."
+          duration={0}
+        />
+      </>
+    </div>
   );
 }
 
