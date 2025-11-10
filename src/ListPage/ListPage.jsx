@@ -1,74 +1,136 @@
-import React, { useCallback, useEffect, useRef } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import Header from '../Header/Header'
 import CardList from '../CardList/CardList'
 import PrimaryMain from '../Button/Primary-main'
 import LeftArrow from '../Button/Left-arrow'
 import RightArrow from '../Button/Right-arrow'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { Navigation } from 'swiper/modules'
 import 'swiper/css'
-import 'swiper/css/navigation'
+
+const CARDS_PER_VIEW = 4
+const CARDS_PER_GROUP = 2
+const CARD_GAP = 20
 
 const POPULAR_CARDS = Array.from({ length: 12 }, (_, index) => ({ id: index }))
 const RECENT_CARDS = Array.from({ length: 12 }, (_, index) => ({ id: index + 100 }))
 
+function PlaceholderCard({ index }) {
+  return (
+    <div
+      key={`placeholder-${index}`}
+      aria-hidden="true"
+      className="w-[275px] h-[260px] rounded-[16px] border border-dashed border-gray-200 bg-[#F8F8F8]"
+    />
+  )
+}
+
 function RollingSwiper({ cards, sliderKey }) {
-  const prevWrapperRef = useRef(null)
-  const nextWrapperRef = useRef(null)
   const swiperRef = useRef(null)
+  const [activeIndex, setActiveIndex] = useState(0)
 
-  const initializeNavigation = useCallback(() => {
-    const swiper = swiperRef.current
-    const prevButton = prevWrapperRef.current?.querySelector('button')
-    const nextButton = nextWrapperRef.current?.querySelector('button')
+  const totalSlides = cards.length
+  const maxStartIndex = Math.max(totalSlides - CARDS_PER_VIEW, 0)
+  const showNavigation = totalSlides > CARDS_PER_VIEW
 
-    if (!swiper || !prevButton || !nextButton) return
-
-    swiper.params.navigation = {
-      ...(swiper.params.navigation || {}),
-      prevEl: prevButton,
-      nextEl: nextButton
-    }
-
-    if (swiper.navigation && swiper.navigation.destroy && swiper.navigation.init) {
-      swiper.navigation.destroy()
-      swiper.navigation.init()
-      swiper.navigation.update()
-    }
-  }, [])
+  const displayCards = useMemo(() => {
+    if (totalSlides >= CARDS_PER_VIEW) return cards
+    const placeholders = Array.from({ length: CARDS_PER_VIEW - totalSlides }, (_, index) => ({
+      id: `placeholder-${sliderKey}-${index}`,
+      placeholder: true
+    }))
+    return [...cards, ...placeholders]
+  }, [cards, sliderKey, totalSlides])
 
   useEffect(() => {
-    initializeNavigation()
-  }, [initializeNavigation, cards.length])
+    setActiveIndex(0)
+    if (swiperRef.current) {
+      swiperRef.current.slideTo(0, 0)
+      swiperRef.current.update()
+    }
+  }, [displayCards])
+
+  const handleSlideChange = (swiper) => {
+    const clamped = Math.min(swiper.activeIndex, maxStartIndex)
+    if (clamped !== activeIndex) {
+      setActiveIndex(clamped)
+    }
+  }
+
+  const slideBy = (delta) => {
+    const swiper = swiperRef.current
+    if (!swiper) return
+    const target = Math.min(Math.max(swiper.activeIndex + delta, 0), maxStartIndex)
+    swiper.slideTo(target)
+  }
+
+  if (!showNavigation) {
+    return (
+      <div className="flex w-full justify-start gap-5">
+        {displayCards.map((card, index) =>
+          card.placeholder ? (
+            <PlaceholderCard key={`${sliderKey}-${card.id}`} index={index} />
+          ) : (
+            <CardList key={`${sliderKey}-${card.id}`} />
+          )
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className="relative flex items-center">
-      <div ref={prevWrapperRef} className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-        <LeftArrow />
-      </div>
+      {activeIndex > 0 && (
+        <div
+          className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 cursor-pointer"
+          onClick={() => slideBy(-CARDS_PER_GROUP)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              slideBy(-CARDS_PER_GROUP)
+            }
+          }}
+        >
+          <LeftArrow />
+        </div>
+      )}
 
       <Swiper
-        modules={[Navigation]}
-        navigation={{ enabled: false }}
-        loop={cards.length > 4}
-        spaceBetween={20}
-        slidesPerView={4}
+        spaceBetween={CARD_GAP}
+        slidesPerView={CARDS_PER_VIEW}
+        slidesPerGroup={CARDS_PER_GROUP}
+        allowTouchMove={false}
+        loop={false}
         onSwiper={(swiper) => {
           swiperRef.current = swiper
-          setTimeout(() => initializeNavigation(), 0)
         }}
+        onSlideChange={handleSlideChange}
         className="w-full"
       >
-        {cards.map((card, index) => (
-          <SwiperSlide key={`${sliderKey}-${card.id ?? index}`} className="!w-[275px] flex justify-center">
-            <CardList />
+        {displayCards.map((card, index) => (
+          <SwiperSlide key={`${sliderKey}-${card.id}`} className="!w-[275px] flex justify-center">
+            {card.placeholder ? <PlaceholderCard index={index} /> : <CardList />}
           </SwiperSlide>
         ))}
       </Swiper>
 
-      <div ref={nextWrapperRef} className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 z-10">
-        <RightArrow />
-      </div>
+      {activeIndex < maxStartIndex && (
+        <div
+          className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 z-10 cursor-pointer"
+          onClick={() => slideBy(CARDS_PER_GROUP)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              slideBy(CARDS_PER_GROUP)
+            }
+          }}
+        >
+          <RightArrow />
+        </div>
+      )}
     </div>
   )
 }
