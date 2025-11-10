@@ -77,7 +77,7 @@ function OwnerPage() {
   const PageDeleteConfirmModal = () => (
     <div className="bg-white rounded-xl shadow-2xl p-8 max-w-sm w-full mx-4">
       <h3 className="text-xl font-bold mb-4 text-center">페이지 삭제 확인</h3>
-      <p className="text-gray-700 mb-6 text-center">Page를 삭제하시겠습니까?</p>
+      <p className="text-gray-700 mb-6 text-center">페이지를 삭제하시겠습니까?</p>
       <div className="flex justify-center space-x-3">
         <button
           onClick={handleConfirmPageDelete}
