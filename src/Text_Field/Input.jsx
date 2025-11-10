@@ -20,7 +20,7 @@ export default function Input() {
         onBlur={handleBlurValidation}
         type="text"
         placeholder="placeholder"
-        className={`w-[320px] max-w-full px-[16px] h-[50px] border  text-grayscale-900 rounded-[8px] ${
+        className={`sm:w-[320px] max-w-full px-[16px] h-[50px] border text-grayscale-900 rounded-[8px] w-full ${
           error ? "border-error" : "border-grayscale-300"
         }`}
       />
