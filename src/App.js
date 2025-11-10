@@ -1,11 +1,8 @@
-import React from "react";
-import "./index.css";
-import TextField from "./Text_Field/Text_field";
+import "./App.css";
 
 function App() {
   return (
     <>
-      <TextField />
     </>
   );
 }
