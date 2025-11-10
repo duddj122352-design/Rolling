@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-export default function Input() {
+export default function Input({text="이름을 입력해주세요."}) {
   const [value, setValue] = useState("");
   const [error, setError] = useState(false);
   const handleBlurValidation = (e) => {
@@ -20,7 +20,7 @@ export default function Input() {
         onChange={handleChange}
         onBlur={handleBlurValidation}
         type="text"
-        placeholder="placeholder"
+        placeholder={text}
         className={`max-[360px]:w-[320px] w-[720px] max-w-full px-[16px] h-[50px] border  text-grayscale-900 rounded-[8px] ${
           error ? "border-error" : "border-grayscale-300"
         }`}
