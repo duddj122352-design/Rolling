@@ -160,7 +160,10 @@ function ListPage() {
         </section>
 
         <div className="w-full max-w-[1201px] flex flex-col items-center">
-          <PrimaryMain className="mt-6 shadow-[0_4px_10px_rgba(153,53,255,0.2)]" />
+          <PrimaryMain
+            className="mt-6 shadow-[0_4px_10px_rgba(153,53,255,0.2)]"
+            text="나도 만들어보기"
+          />
         </div>
       </main>
     </div>
