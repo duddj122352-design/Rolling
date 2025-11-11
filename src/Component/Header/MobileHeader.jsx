@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import sharingIcon from "../../img/share-24.svg";
 import { ReactComponent as PlusIcon } from "../../img/add-24.svg";
 import { ReactComponent as ArrowIcon } from "../../img/arrow_down.svg";
-import Toast from "../Toast/Toast.jsx";
+import Toast from "../Toast/Toast";
 import EmojiPicker from "emoji-picker-react";
 
 function MobileHeader() {
