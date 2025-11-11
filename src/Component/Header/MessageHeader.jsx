@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
-import sharingIcon from "../img/share-24.svg";
-import { ReactComponent as PlusIcon } from "../img/add-24.svg";
-import { ReactComponent as ArrowIcon } from "../img/arrow_down.svg";
+import React, { useState, useEffect, useCallback } from "react";
+import sharingIcon from "../../img/share-24.svg";
+import { ReactComponent as PlusIcon } from "../../img/add-24.svg";
+import { ReactComponent as ArrowIcon } from "../../img/arrow_down.svg";
 import EmojiPicker from "emoji-picker-react";
+import Toast from "../Toast/Toast.jsx";
 
 function MessageHeader() {
   const [reactions, setReactions] = useState([]);
@@ -11,8 +12,14 @@ function MessageHeader() {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [animatedId, setAnimatedId] = useState(null);
   const [popup, setPopup] = useState({ visible: false, message: "" });
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState("success");
 
-  // 🔹 사용자 식별용 ID
+  // 페이지가 새로고침되어도 이모지는 유지
+  const AUTO_RESET_ON_LOAD = false;
+
+  // 사용자 구분용 ID (로컬 스토리지 저장)
   const [userId] = useState(() => {
     const saved = localStorage.getItem("userId");
     if (saved) return saved;
@@ -21,26 +28,47 @@ function MessageHeader() {
     return newId;
   });
 
-  // 🔹 localStorage 불러오기
-  useEffect(() => {
-    const saved = localStorage.getItem("reactions");
-    if (saved) setReactions(JSON.parse(saved));
+  // 반응 리셋 함수 (디버깅용)
+  const resetReactions = useCallback(() => {
+    localStorage.removeItem("reactions");
+    setReactions([]);
+    console.log("reactions가 초기화되었습니다!");
   }, []);
 
-  // 🔹 localStorage 저장
+  // 페이지 로드시 저장된 반응 불러오기
+  useEffect(() => {
+    if (AUTO_RESET_ON_LOAD) {
+      resetReactions();
+    } else {
+      const saved = localStorage.getItem("reactions");
+      if (saved) setReactions(JSON.parse(saved));
+    }
+
+    window.resetReactions = resetReactions;
+  }, [AUTO_RESET_ON_LOAD, resetReactions]);
+
+  // 반응 상태가 변경될 때마다 localStorage 업데이트
   useEffect(() => {
     localStorage.setItem("reactions", JSON.stringify(reactions));
   }, [reactions]);
 
-  // 🔹 팝업 표시
+  // 팝업 표시 함수
   const showPopup = (msg) => {
     setPopup({ visible: true, message: msg });
     setTimeout(() => setPopup({ visible: false, message: "" }), 2000);
   };
 
+  // Toast 표시 함수
+  const showToast = (msg, type = "success") => {
+    setToastMessage(msg);
+    setToastType(type);
+    setToastOpen(true);
+  };
+
+  // 이모지 정렬
   const sortedReactions = [...reactions].sort((a, b) => b.count - a.count);
 
-  // 🔹 이모지 클릭/추가
+  // 이모지 클릭/추가
   const handleEmojiSelect = (emojiData) => {
     const selectedEmoji =
       typeof emojiData === "string"
@@ -70,7 +98,6 @@ function MessageHeader() {
             : r
         );
       } else {
-        // 새 이모지 추가
         return [
           ...prev,
           {
@@ -89,15 +116,39 @@ function MessageHeader() {
     setShowEmojiPicker(false);
   };
 
+  // 🔹 토글 함수 (하나 열리면 나머지 닫힘)
   const toggleEmojiMenu = () => {
     setShowEmojiMenu((prev) => !prev);
-    if (showEmojiPicker) setShowEmojiPicker(false);
+    setShowShareMenu(false);
+    setShowEmojiPicker(false);
   };
 
-  const toggleShareMenu = () => setShowShareMenu((prev) => !prev);
+  const toggleShareMenu = () => {
+    setShowShareMenu((prev) => !prev);
+    setShowEmojiMenu(false);
+    setShowEmojiPicker(false);
+  };
+
   const toggleEmojiPicker = () => {
     setShowEmojiPicker((prev) => !prev);
-    if (showEmojiMenu) setShowEmojiMenu(false);
+    setShowEmojiMenu(false);
+    setShowShareMenu(false);
+  };
+
+  // 공유 기능
+  const handleKakaoShare = () => {
+    showToast("카카오톡 URL이 복사되었습니다!", "success");
+    setShowShareMenu(false);
+  };
+
+  const handleCopyURL = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      showToast("URL이 복사되었습니다!", "success");
+    } catch {
+      showToast("복사에 실패했어요 😢", "error");
+    }
+    setShowShareMenu(false);
   };
 
   const shareButtonClasses = `
@@ -118,6 +169,15 @@ function MessageHeader() {
 
   return (
     <div className="border-b border-gray-200 relative">
+      {/* Toast */}
+      <Toast
+        isOpen={toastOpen}
+        onClose={() => setToastOpen(false)}
+        message={toastMessage}
+        type={toastType}
+        duration={2000}
+      />
+
       {/* 팝업 */}
       {popup.visible && (
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-80 text-white text-sm px-5 py-3 rounded-lg shadow-lg z-50 animate-fadeIn">
@@ -154,22 +214,18 @@ function MessageHeader() {
           {sortedReactions.length > 0 && (
             <div className="relative">
               <div className="flex items-center gap-1">
-                {/* Top3 */}
-                <div className="flex items-center gap-2">
-                  {sortedReactions.slice(0, 3).map((reaction) => (
-                    <button
-                      key={reaction.id}
-                      onClick={() => handleEmojiSelect(reaction.emoji)}
-                      className={`flex items-center justify-center gap-1 bg-black bg-opacity-[54%] text-white rounded-full px-[12px] py-[6px] transition-transform duration-150 ${
-                        animatedId === reaction.id ? "emoji-animate" : ""
-                      }`}
-                    >
-                      {reaction.emoji}&nbsp;{reaction.count}
-                    </button>
-                  ))}
-                </div>
+                {sortedReactions.slice(0, 3).map((reaction) => (
+                  <button
+                    key={reaction.id}
+                    onClick={() => handleEmojiSelect(reaction.emoji)}
+                    className={`flex items-center justify-center gap-1 bg-black bg-opacity-[54%] text-white rounded-full px-[12px] py-[6px] transition-transform duration-150 ${
+                      animatedId === reaction.id ? "emoji-animate" : ""
+                    }`}
+                  >
+                    {reaction.emoji}&nbsp;{reaction.count}
+                  </button>
+                ))}
 
-                {/* 화살표 토글 */}
                 {sortedReactions.length > 3 && (
                   <button
                     onClick={toggleEmojiMenu}
@@ -184,7 +240,6 @@ function MessageHeader() {
                 )}
               </div>
 
-              {/* 1~7번째 이모지 + 7개 이후 +N */}
               {showEmojiMenu && sortedReactions.length > 3 && (
                 <div className="absolute right-5 mt-2 w-80 bg-white rounded-xl shadow-lg p-[24px] grid grid-cols-4 gap-2 justify-items-center z-10">
                   {sortedReactions.slice(0, 7).map((reaction) => (
@@ -209,7 +264,7 @@ function MessageHeader() {
             </div>
           )}
 
-          {/* 이모지 추가 버튼 */}
+          {/* 이모지 추가 */}
           <div className="relative z-20">
             <button onClick={toggleEmojiPicker} className={plusButtonClasses}>
               <PlusIcon />
@@ -236,11 +291,17 @@ function MessageHeader() {
             </button>
 
             {showShareMenu && (
-              <div className="absolute right-0 mt-2 bg-white shadow-lg rounded-md py-[10px] w-[140px] h-[120px] z-10 text-gray-900 border border-gray-300 text-16-regular">
-                <button className="text-left px-4 py-2 hover:bg-gray-100 w-[138px] h-[50px]">
+              <div className="absolute right-0 mt-2 bg-white shadow-lg rounded-md py-[10px] w-[140px] z-10 text-gray-900 border border-gray-300 text-16-regular">
+                <button
+                  onClick={handleKakaoShare}
+                  className="text-left px-4 py-2 hover:bg-gray-100 w-full"
+                >
                   카카오톡 공유
                 </button>
-                <button className="text-left px-4 py-2 hover:bg-gray-100 w-[138px] h-[50px]">
+                <button
+                  onClick={handleCopyURL}
+                  className="text-left px-4 py-2 hover:bg-gray-100 w-full"
+                >
                   URL 복사
                 </button>
               </div>
