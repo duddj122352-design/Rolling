@@ -45,7 +45,7 @@ function Modal({
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[#F1F1F1]"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.54)]"
       onClick={handleBackdropClick}
     >
       <div className="relative w-[600px] h-[476px] bg-white rounded-2xl shadow-[0px_2px_12px_rgba(0,0,0,0.08)]">
@@ -107,8 +107,9 @@ function Modal({
         </div>
 
         {/* 버튼 */}
-        <div className="absolute left-[240px] bottom-5">
-          <Modalbtn onClick={handleButtonClick}/>
+        <div className="absolute left-[240px] bottom-[40px]">
+          <Modalbtn onClick={handleButtonClick} text="확인"
+          className="px-[15px] py-[7px] text-16-regular text-white"/>
         </div>
       </div>
     </div>

@@ -5,7 +5,7 @@ import DeleteButton from "../Component/Button/Delete-button.jsx";
 import Modal from "../Component/Modal/Modal.jsx";
 import Card from "../Component/Card/Card.jsx";
 
-// 🚨 정적인 메시지 데이터
+// 정적인 메시지 데이터
 const STATIC_MESSAGES = Array.from({ length: 9 }).map((_, index) => ({
   id: index + 1,
   senderName: `보낸 이 #${index + 1}`,
@@ -59,7 +59,7 @@ function OwnerPage() {
     setIsMessageDeleteModalOpen(false);
   };
 
-  // 🟣 삭제 확인 모달 (내부 정의)
+  // 삭제 확인 모달 (내부 정의)
   const DeleteModal = ({ title, message, onConfirm, onCancel }) => (
     <div
       className="fixed inset-0 bg-black/70 flex justify-center items-center z-[100]"
@@ -108,7 +108,7 @@ function OwnerPage() {
             <div className="mx-auto px-6 relative max-w-7xl">
               {/* 페이지 삭제 버튼 */}
               <div
-                className="absolute top-[-55px] right-8 z-10"
+                className="absolute top-[-50px] right-8 z-10"
                 onClick={handleOpenPageDeleteModal}
               >
                 <DeleteButton text="삭제하기" />
