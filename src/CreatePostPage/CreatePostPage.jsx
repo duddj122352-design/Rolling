@@ -12,8 +12,8 @@ function CreatePostPage() {
       <div
         className="
           w-full max-w-[768px]
-          mx-auto mt-[57px]
-          px-[24px] py-[45px]
+          mx-auto mt-[57px] max-sm:mt-[50px]
+          px-[24px]
           text-left
           flex flex-col items-center
           h-[646px]
@@ -26,17 +26,17 @@ function CreatePostPage() {
             <Input />
           </div>
 
-          <div className="w-full max-[360px]:w-[320px] mt-[50px] mb-[24px] flex flex-col items-start">
+          <div className="w-full max-[360px]:w-[320px] mt-[50px] max-sm:mt-[48px] mb-[24px] flex flex-col items-start">
             <div className="text-gray-900 text-24-bold">
               배경화면을 선택해 주세요.
             </div>
-            <div className="mb-[24px] text-gray-500 text-16-regular max-sm:mb-0">
+            <div className="text-gray-500 text-16-regular max-sm:mb-0">
               컬러를 선택하거나, 이미지를 선택할 수 있습니다.
             </div>
           </div>
 
 
-          <div className="w-[168px] max-[360px]:w-[320px] mb-[45px] flex flex-col items-start">
+          <div className="w-[168px] max-[360px]:w-[320px] mb-[45px] max-sm:mb-[28px] flex flex-col items-start">
             <ToggleButton />
           </div>
 
@@ -46,7 +46,7 @@ function CreatePostPage() {
         </div>
 
   
-        <div className="w-full h-full py-[24px] flex justify-center items-center md:pb-6">
+        <div className="mt-[45px] max-sm:mt-[58px] w-full h-full py-[24px] flex justify-center items-center md:pb-6">
           <PrimaryMain />
         </div>
       </div>
