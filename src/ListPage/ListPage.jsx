@@ -1,14 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../Component/Header/Header'
-import CardList from '../Component/CardList/CardList' // 가정된 컴포넌트 경로
-import PrimaryMain from '../Component/Button/Primary-main' // 가정된 컴포넌트 경로
-import LeftArrow from '../Component/Button/Left-arrow' // 가정된 컴포넌트 경로
-import RightArrow from '../Component/Button/Right-arrow' // 가정된 컴포넌트 경로
+import CardList from '../Component/CardList/CardList'
+import PrimaryMain from '../Component/Button/Primary-main'
+import LeftArrow from '../Component/Button/Left-arrow'
+import RightArrow from '../Component/Button/Right-arrow'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import 'swiper/css'
-import styles from './ListPage.module.css' // 가정된 CSS 모듈 경로
-import { fetchRecipients, fetchRecipientReactions, normalizeReactionsResponse } from '../api/recipients' // API 함수 임포트
+import styles from './ListPage.module.css'
+import { fetchRecipients, fetchRecipientReactions, normalizeReactionsResponse } from '../api/recipients'
 
 const CARDS_PER_VIEW = 4
 const CARDS_PER_GROUP = 2
@@ -64,10 +64,12 @@ function RollingSwiper({ cards, sliderKey, viewportWidth }) {
   // 화면 크기에 따라 보이는 카드 수
   const visibleCount = isDesktop ? CARDS_PER_VIEW : isTablet ? 3 : 1
   const totalSlides = safeCards.length
-  // maxStartIndexForLastCard: 마지막 카드가 완전히 보이도록 하는 최대 시작 인덱스
-  const maxStartIndexForLastCard = Math.max(totalSlides - visibleCount, 0)
-  // maxStartIndexWithEmpty: 빈칸까지 보이는 위치 (데스크탑에서만 사용)
-  const maxStartIndexWithEmpty = Math.max(totalSlides - visibleCount + 1, 0)
+  // maxStartIndex: 마지막 카드가 완전히 보이도록 하는 최대 시작 인덱스
+  // 예: 13개 카드, 4개씩 보이면 index 9에서 카드 10-13이 완전히 보임
+  // 그 다음 index 10으로 이동하면 카드 11-13 + 빈칸이 보이도록 하기 위해 +1 추가
+  // 하지만 사용자가 마지막 카드가 안 보인다고 하므로, 먼저 마지막 카드가 완전히 보이는 위치까지 이동 가능하도록 설정
+  const maxStartIndexForLastCard = Math.max(totalSlides - visibleCount, 0) // 마지막 카드가 완전히 보이는 위치
+  const maxStartIndexWithEmpty = Math.max(totalSlides - visibleCount + 1, 0) // 빈칸까지 보이는 위치
   const showNavigation = isDesktop && totalSlides > CARDS_PER_VIEW
   const cardGap = isMobile ? 12 : CARD_GAP
 
@@ -115,33 +117,44 @@ function RollingSwiper({ cards, sliderKey, viewportWidth }) {
       const swiper = swiperRef.current
       if (!swiper) return
       
+      // activeIndex를 우선 사용 (swiper.activeIndex와 동기화되어 있음)
       const currentIndex = activeIndex
       let step = isDesktop ? CARDS_PER_GROUP : viewportWidth > 768 ? 3 : 1
       
       // 오른쪽으로 이동할 때 마지막 처리
       if (delta > 0 && totalSlides > visibleCount) {
+        // 데스크탑: 먼저 마지막 카드가 완전히 보이는 위치까지, 그 다음 빈칸까지 이동 가능
         if (isDesktop) {
+          // 마지막 카드가 완전히 보이는 위치에 도달하지 않았다면
           if (currentIndex < maxStartIndexForLastCard) {
             const remainingToLastCard = maxStartIndexForLastCard - currentIndex
+            // 남은 거리가 step보다 작으면 남은 거리만큼만 이동
             if (remainingToLastCard < step) {
               step = remainingToLastCard
             }
-          } else if (currentIndex < maxStartIndexWithEmpty) {
+          }
+          // 마지막 카드가 완전히 보이는 위치에 도달했지만 빈칸까지는 아직 안 갔다면
+          else if (currentIndex < maxStartIndexWithEmpty) {
             const remainingToEmpty = maxStartIndexWithEmpty - currentIndex
+            // 남은 거리가 step보다 작으면 남은 거리만큼만 이동 (1칸만 이동)
             if (remainingToEmpty < step) {
               step = remainingToEmpty
             }
           } else {
+            // 이미 빈칸까지 도달했으면 이동하지 않음
             return
           }
         } 
-        else { // 모바일/태블릿
+        // 모바일/태블릿: 마지막 카드가 완전히 보이는 위치까지만 이동 가능
+        else {
           if (currentIndex < maxStartIndexForLastCard) {
             const remainingToLastCard = maxStartIndexForLastCard - currentIndex
+            // 남은 거리가 step보다 작으면 남은 거리만큼만 이동
             if (remainingToLastCard < step) {
               step = remainingToLastCard
             }
           } else {
+            // 이미 마지막 위치에 도달했으면 이동하지 않음
             return
           }
         }
@@ -151,22 +164,28 @@ function RollingSwiper({ cards, sliderKey, viewportWidth }) {
       const proposedTarget = currentIndex + delta * step
       let target = Math.max(proposedTarget, 0)
       
+      // 데스크탑: 빈칸까지 이동 가능, 모바일/태블릿: 마지막 카드까지만 이동 가능
       if (isDesktop) {
         target = Math.min(target, maxStartIndexWithEmpty)
       } else {
         target = Math.min(target, maxStartIndexForLastCard)
       }
       
+      // 실제로 이동할 수 있는지 확인
       if (target !== currentIndex) {
+        // 마지막 부분에서는 slidesPerGroup을 무시하고 정확한 인덱스로 이동
+        // Swiper의 slideTo는 slidesPerGroup을 고려하지 않고 정확한 인덱스로 이동합니다
         const originalSlidesPerGroup = swiper.params.slidesPerGroup
+        // 마지막 부분에서는 slidesPerGroup을 1로 임시 변경하여 정확한 이동 보장
         if (isDesktop && (target >= maxStartIndexForLastCard || currentIndex >= maxStartIndexForLastCard)) {
           swiper.params.slidesPerGroup = 1
         }
-        swiper.slideTo(target, 300)
+        swiper.slideTo(target, 300) // 300ms 애니메이션
+        // 원래 설정 복원
         if (isDesktop && (target >= maxStartIndexForLastCard || currentIndex >= maxStartIndexForLastCard)) {
           swiper.params.slidesPerGroup = originalSlidesPerGroup
         }
-        setActiveIndex(target)
+        setActiveIndex(target) // activeIndex 즉시 업데이트
       }
     },
     [activeIndex, maxStartIndexForLastCard, maxStartIndexWithEmpty, isDesktop, totalSlides, visibleCount, viewportWidth]
@@ -239,6 +258,9 @@ function RollingSwiper({ cards, sliderKey, viewportWidth }) {
       </Swiper>
 
       {showNavigation && (() => {
+        // 오른쪽 화살표 표시 조건
+        // 데스크탑: 마지막 카드가 완전히 보이는 위치에 도달하지 않았거나, 빈칸까지 이동할 수 있을 때
+        // 모바일/태블릿: 마지막 카드가 완전히 보이는 위치에 도달하지 않았을 때
         const canMoveRight = isDesktop
           ? activeIndex < maxStartIndexWithEmpty
           : activeIndex < maxStartIndexForLastCard
@@ -278,8 +300,10 @@ function ListPage() {
   useEffect(() => {
     if (typeof window === 'undefined') return undefined
 
+    // 리사이즈 이벤트에 대한 throttle 적용 및 passive 옵션 추가
     let timeoutId = null
     const handleResize = () => {
+      // throttle: 150ms마다 한 번만 실행하여 성능 최적화
       if (timeoutId) return
       timeoutId = setTimeout(() => {
         const measured = window.innerWidth || document.documentElement.clientWidth || 1920
@@ -287,10 +311,10 @@ function ListPage() {
         timeoutId = null
       }, 150)
     }
-    window.addEventListener('resize', handleResize, { passive: true })
+    window.addEventListener('resize', handleResize, { passive: true }) // passive: true로 터치/스크롤 성능 개선
 
     return () => {
-      if (timeoutId) clearTimeout(timeoutId)
+      if (timeoutId) clearTimeout(timeoutId) // 컴포넌트 언마운트 시 타이머 정리
       window.removeEventListener('resize', handleResize)
     }
   }, [])
@@ -303,7 +327,7 @@ function ListPage() {
         setLoading(true)
         setError(null)
         
-        // [1] 전체 수신인 목록 집계
+        // pagination을 모두 따라가며 수신인 전체 목록을 불러온다
         const limit = 50
         let offset = 0
         let aggregated = []
@@ -312,7 +336,9 @@ function ListPage() {
         while (hasNext) {
           const data = await fetchRecipients({ limit, offset })
           
-          if (!active) return
+          if (!active) {
+            return
+          }
 
           const results = Array.isArray(data?.results) ? data.results : []
           aggregated = aggregated.concat(results)
@@ -324,42 +350,64 @@ function ListPage() {
           }
         }
 
-        // ------------------------------------------------------------------
-        // [2] ⭐ 배치 처리 (Batch Processing) 적용: API 안정성 개선 ⭐
-        // ------------------------------------------------------------------
-        const BATCH_SIZE = 10; // 한 번에 10개씩 요청
-        let enriched = [];
-
-        for (let i = 0; i < aggregated.length; i += BATCH_SIZE) {
-            if (!active) return
-            const batch = aggregated.slice(i, i + BATCH_SIZE);
+        // 각 수신인에 대한 반응 카운트를 따로 요청하여 카드에 전달하고 총합 계산
+        const enriched = await Promise.all(
+          aggregated.map(async (item) => {
+            if (!item?.id) {
+              return { ...item, reactions: [], totalReactions: 0 }
+            }
             
-            const batchResults = await Promise.all(
-                batch.map(async (item) => {
-                    if (!item?.id) return { ...item, reactions: [], totalReactions: 0 }
-                    
-                    try {
-                        // 개별 수신인의 반응 데이터를 가져옴
-                        const reactionData = await fetchRecipientReactions(item.id)
-                        const normalized = normalizeReactionsResponse(reactionData)
-                        const totalReactions = normalized.reduce((acc, reaction) => acc + (reaction.count || 0), 0)
-                        
-                        return { ...item, reactions: normalized, totalReactions }
-                    } catch (err) {
-                        // 개별 반응 데이터 로드 실패 시에도 전체 로딩을 멈추지 않음
-                        console.error(`반응 데이터를 불러오지 못했습니다 (ID: ${item.id}):`, err)
-                        return { ...item, reactions: [], totalReactions: 0 }
-                    }
-                })
-            );
-            enriched = enriched.concat(batchResults);
-        }
-        // ------------------------------------------------------------------
+            try {
+              const reactionData = await fetchRecipientReactions(item.id)
+              const normalized = normalizeReactionsResponse(reactionData)
+              const totalReactions = normalized.reduce((acc, reaction) => acc + (reaction.count || 0), 0)
+              
+              return { ...item, reactions: normalized, totalReactions }
+            } catch (err) {
+              console.error('반응 데이터를 불러오지 못했습니다:', err)
+              return { ...item, reactions: [], totalReactions: 0 }
+            }
+          })
+        )
 
-        // [3] 데이터 정렬 및 상태 업데이트
-        
-        // 인기 순 정렬: 반응 수가 많은 순서대로
-        const sortedByReaction = [...enriched].sort((a, b) => (b.totalReactions ?? 0) - (a.totalReactions ?? 0))
+        // 인기 순 정렬: 
+        // 1순위: 이모지가 많은 순 (totalReactions > 0)
+        // 2순위: 이모지가 없고 작성한 사람이 있을 경우 (totalReactions === 0 && messageCount > 0)
+        // 3순위: 아무것도 없는 경우 (totalReactions === 0 && messageCount === 0)
+        const sortedByReaction = [...enriched].sort((a, b) => {
+          const aReactions = a.totalReactions ?? 0
+          const bReactions = b.totalReactions ?? 0
+          const aMessageCount = Number(a.messageCount ?? 0)
+          const bMessageCount = Number(b.messageCount ?? 0)
+          
+          // 1순위: 이모지가 있는 경우
+          const aHasReactions = aReactions > 0
+          const bHasReactions = bReactions > 0
+          
+          if (aHasReactions && !bHasReactions) return -1 // a가 1순위
+          if (!aHasReactions && bHasReactions) return 1  // b가 1순위
+          
+          // 둘 다 이모지가 있으면 이모지 수로 정렬
+          if (aHasReactions && bHasReactions) {
+            return bReactions - aReactions
+          }
+          
+          // 둘 다 이모지가 없는 경우
+          // 2순위: 작성한 사람이 있는 경우
+          const aHasMessages = aMessageCount > 0
+          const bHasMessages = bMessageCount > 0
+          
+          if (aHasMessages && !bHasMessages) return -1 // a가 2순위
+          if (!aHasMessages && bHasMessages) return 1  // b가 2순위
+          
+          // 둘 다 작성한 사람이 있으면 작성한 사람 수로 정렬
+          if (aHasMessages && bHasMessages) {
+            return bMessageCount - aMessageCount
+          }
+          
+          // 둘 다 아무것도 없는 경우 (3순위) - 순서 유지
+          return 0
+        }).slice(0, 8)
         
         // 최근 순 정렬: 생성일이 최신인 순서대로
         const sortedByRecent = [...enriched].sort((a, b) => {
@@ -368,12 +416,16 @@ function ListPage() {
           return dateB - dateA
         })
 
-        if (!active) return
+        if (!active) {
+          return
+        }
 
         setPopularCards(sortedByReaction)
         setRecentCards(sortedByRecent)
       } catch (err) {
-        if (!active) return
+        if (!active) {
+          return
+        }
         
         console.error('수신인 목록 불러오기 실패:', err)
         
@@ -419,7 +471,7 @@ function ListPage() {
             <div className="text-14-regular text-red-500">
               <p>데이터를 불러오지 못했습니다.</p>
               {error.message && <p className="text-xs mt-1">{error.message}</p>}
-            </div>
+          </div>
           ) : (
             <RollingSwiper cards={popularCards} sliderKey="popular" viewportWidth={viewportWidth} />
           )}
@@ -445,7 +497,7 @@ function ListPage() {
             <div className="text-14-regular text-red-500">
               <p>데이터를 불러오지 못했습니다.</p>
               {error.message && <p className="text-xs mt-1">{error.message}</p>}
-            </div>
+          </div>
           ) : (
             <RollingSwiper cards={recentCards} sliderKey="recent" viewportWidth={viewportWidth} />
           )}
@@ -464,3 +516,6 @@ function ListPage() {
 }
 
 export default ListPage
+
+
+
