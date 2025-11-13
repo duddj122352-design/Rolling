@@ -7,7 +7,7 @@ import Select from "../Component/Text_Field/SelectBox";
 import Froala from "../Component/Text_Field/Froala";
 import PrimaryPc from "../Component/Button/Primary-pc";
 import axios from "axios";
-import api from "./axiox"; // 프로필 이미지용 커스텀 api 인스턴스 (경로 확인 필요)
+import apiClient from "../api/client";
 
 function Send() {
   // 관계 선택 상태
@@ -36,10 +36,10 @@ function Send() {
     { label: "Noto Sans", value: "Noto Sans" },
     { label: "Pretendard", value: "Pretendard" },
   ];
-
+  const ROOT_API_URL = 'https://rolling-api.vercel.app';
   const fetchProfileImages = async () => {
     try {
-      const response = await api.get("/");
+      const response = await apiClient.get(`${ROOT_API_URL}/profile-images/`);
       const data = response.data;
 
       if (Array.isArray(data)) {
@@ -54,6 +54,7 @@ function Send() {
       console.error("프로필 이미지 로딩 실패:", error);
     }
   };
+  
 
   useEffect(() => {
     fetchProfileImages();
@@ -74,8 +75,6 @@ function Send() {
       relation: selectedRelation.value,
       font: selectedFont.value,
     };
-
-    console.log("보낼 payload:", payload);
 
     try {
       const res = await axios.post(
