@@ -296,7 +296,6 @@ function ListPage() {
   const [recentCards, setRecentCards] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     if (typeof window === 'undefined') return undefined
@@ -450,25 +449,6 @@ function ListPage() {
     }
   }, [])
 
-  // 검색어로 필터링하는 함수
-  const filterCards = useCallback((cards, query) => {
-    if (!query || query.trim() === '') return cards
-    const lowerQuery = query.toLowerCase().trim()
-    return cards.filter((card) => {
-      const name = card?.name || ''
-      return name.toLowerCase().includes(lowerQuery)
-    })
-  }, [])
-
-  // 필터링된 카드 목록
-  const filteredPopularCards = useMemo(
-    () => filterCards(popularCards, searchQuery),
-    [popularCards, searchQuery, filterCards]
-  )
-  const filteredRecentCards = useMemo(
-    () => filterCards(recentCards, searchQuery),
-    [recentCards, searchQuery, filterCards]
-  )
 
   return (
     <div className="min-h-screen bg-white">
@@ -479,43 +459,6 @@ function ListPage() {
       </header>
 
       <main className={`flex flex-col items-center gap-[50px] pt-[30px] pb-6 min-[769px]:pb-[172px] overflow-hidden min-[769px]:overflow-visible ${styles.mainLayout}`}>
-        {/* 검색창 */}
-        <div className={`w-full max-w-[1160px] ${styles.searchContainer}`}>
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="롤링페이퍼 이름으로 검색..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={`w-full px-4 py-3 pl-10 pr-10 border border-gray-300 rounded-lg text-16-regular focus:outline-none focus:ring-2 focus:ring-[#9935FF] focus:border-transparent ${styles.searchInput}`}
-            />
-            <svg
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                aria-label="검색어 지우기"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            )}
-          </div>
-        </div>
-
         <section className={`w-full max-w-[1160px] flex flex-col gap-4 ${styles.section}`}>
           <div className={`flex items-center justify-between ${styles.sectionHeader}`}>
             <h2 className={`text-24-bold text-gray-900 ${styles.sectionTitle}`}>
@@ -529,12 +472,8 @@ function ListPage() {
               <p>데이터를 불러오지 못했습니다.</p>
               {error.message && <p className="text-xs mt-1">{error.message}</p>}
           </div>
-          ) : filteredPopularCards.length === 0 && searchQuery ? (
-            <div className="text-14-regular text-gray-500 py-8 text-center">
-              &quot;{searchQuery}&quot;에 대한 검색 결과가 없습니다.
-            </div>
           ) : (
-            <RollingSwiper cards={filteredPopularCards} sliderKey="popular" viewportWidth={viewportWidth} />
+            <RollingSwiper cards={popularCards} sliderKey="popular" viewportWidth={viewportWidth} />
           )}
         </section>
 
@@ -547,8 +486,7 @@ function ListPage() {
               최근에 만든 롤링 페이퍼 ⭐️️
               {!loading && !error && (
                 <span className="text-16-regular text-gray-500 ml-2">
-                  ({searchQuery ? filteredRecentCards.length : recentCards.length}개
-                  {searchQuery && filteredRecentCards.length !== recentCards.length && ` / 전체 ${recentCards.length}개`})
+                  ({recentCards.length}개)
                 </span>
               )}
             </h2>
@@ -560,12 +498,8 @@ function ListPage() {
               <p>데이터를 불러오지 못했습니다.</p>
               {error.message && <p className="text-xs mt-1">{error.message}</p>}
           </div>
-          ) : filteredRecentCards.length === 0 && searchQuery ? (
-            <div className="text-14-regular text-gray-500 py-8 text-center">
-              &quot;{searchQuery}&quot;에 대한 검색 결과가 없습니다.
-            </div>
           ) : (
-            <RollingSwiper cards={filteredRecentCards} sliderKey="recent" viewportWidth={viewportWidth} />
+            <RollingSwiper cards={recentCards} sliderKey="recent" viewportWidth={viewportWidth} />
           )}
         </section>
 
