@@ -417,7 +417,7 @@ function ListPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <header className="flex justify-center shadow-[0_1px_0_rgba(237,237,237,1)] bg-white px-[5%]">
+      <header className="flex justify-center shadow-[0_1px_0_rgba(237,237,237,1)] bg-white px-[5%] py-4 max-ta:px-4 max-xt:px-6 max-xs:px-4 max-xs:py-3">
         <div className={`w-full max-w-[1199px] ${styles.headerShell}`}>
           <Header />
         </div>
