@@ -3,8 +3,9 @@ import Header from "../Component/Header/Header";
 import MessageHeader from "../Component/Header/MessageHeader";
 import Modal from "../Component/Modal/Modal";
 import UserCard, { defaultMessage } from "../Component/Card/UserCard";
+import AddCard from "../Component/Card/AddCard";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 function RecipientPage() {
   const { id } = useParams(); // URL에 있는 id 값 가져오기
@@ -58,7 +59,7 @@ function RecipientPage() {
       try {
         // id: 14995 --> 추후 변경: ${id}
         const res = await axios.get(
-          `https://rolling-api.vercel.app/20-4/recipients/14995/reactions/`
+          `https://rolling-api.vercel.app/20-4/recipients/${id}/reactions/`
         );
         setReactions(res.data.results);
         console.log(reactions);
@@ -79,7 +80,7 @@ function RecipientPage() {
     try {
       // id: 14995 --> 추후 변경: ${id}
       const res = await axios.post(
-        `https://rolling-api.vercel.app/20-4/recipients/14995/reactions/`,
+        `https://rolling-api.vercel.app/20-4/recipients/${id}/reactions/`,
         {
           emoji: selectEmojiObj.emoji,
           type: selectEmojiObj.type,
@@ -93,6 +94,13 @@ function RecipientPage() {
     } catch (error) {
       alert(`실패: ${error}`);
     }
+  };
+
+  const navigate = useNavigate();
+
+  const handleAddCardClick = () => {
+    // alert(`/post/${id}/message`);
+    navigate(`/post/${id}/message`);
   };
 
   return (
@@ -117,6 +125,9 @@ function RecipientPage() {
           <div className="flex-1 w-full pt-[180px] pb-10 relative">
             <div className="mx-auto px-6 relative max-w-7xl">
               {/* 카드 목록 */}
+              <div onClick={handleAddCardClick} className="cursor-pointer">
+                <AddCard />
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[24px] mt-[28px] relative z-10">
                 {messegesToRender.map((message, idx) => (
                   <UserCard
