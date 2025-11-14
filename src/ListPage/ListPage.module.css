@@ -152,10 +152,7 @@
 }
 
 @media (max-width: 360px) {
-  .sectionHeaderRow {
-    padding-left: 16px;
-    padding-right: 16px;
-  }
+
   .section {
     max-width: 320px;
     width: 100%;
@@ -188,6 +185,7 @@
     width: 100%;
     overflow: visible;
     padding: 0;
+    transform: translate3d(-20px, 0px, 0px);
   }
 
   .swiperSlide {
@@ -441,7 +439,6 @@
 
   .headerShell :global(> div > header > div) {
     width: 100%;
-    max-width: 960px;
     margin: 0 auto;
     padding-left: 24px;
     padding-right: 24px;

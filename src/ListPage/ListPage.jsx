@@ -467,12 +467,12 @@ function ListPage() {
         <section className="w-full flex flex-col gap-4 max-w-[1160px] max-ta:max-w-full"> 
           <div className="max-xt:px-6 max-xs:px-5"> {/* 제목용 패딩 래퍼 */}
             <div className={`flex items-center justify-between max-xt:flex-col max-xt:items-start gap-4 ${styles.sectionHeaderRow}`}>
-              <h2 className="text-24-bold text-gray-900 max-xt:text-24-bold max-xs:text-[20px] max-xs:leading-[30px]">
+              <h2 className="mb-4 text-24-bold text-gray-900 max-xt:text-24-bold max-xs:text-[20px] max-xs:leading-[30px] max-xs:mb-3">
                 인기 TOP 8 🔥
               </h2>
             </div>
             {loading ? (
-              <p className="text-14-regular text-gray-500">데이터를 불러오는 중입니다...</p>
+              <p className="text-14-regular text-gray-500 translate-x-6 max-ta:translate-x-0">데이터를 불러오는 중입니다...</p>
             ) : error ? (
               <div className="text-14-regular text-red-500">
                 <p>데이터를 불러오지 못했습니다.</p>
@@ -491,7 +491,7 @@ function ListPage() {
             <div className={`flex items-center justify-between max-xt:flex-col max-xt:items-start gap-4 ${styles.sectionHeaderRow}`}>
               <h2 
                 onClick={() => navigate('/recent')}
-                className="text-24-bold text-gray-900 cursor-pointer hover:text-purple-600 transition-colors max-xt:text-24-bold max-xs:text-[20px] max-xs:leading-[30px]"
+                className="mb-4 text-24-bold text-gray-900 cursor-pointer hover:text-purple-600 transition-colors max-xt:text-24-bold max-xs:text-[20px] max-xs:leading-[30px] max-xs:mb-3"
               >
                 최근에 만든 롤링 페이퍼 ⭐️️
                 {!loading && !error && (
@@ -500,7 +500,7 @@ function ListPage() {
               </h2>
             </div>
             {loading ? (
-              <p className="text-14-regular text-gray-500">데이터를 불러오는 중입니다...</p>
+              <p className="text-14-regular text-gray-500 translate-x-6 max-ta:translate-x-0">데이터를 불러오는 중입니다...</p>
             ) : error ? (
               <div className="text-14-regular text-red-500">
                 <p>데이터를 불러오지 못했습니다.</p>
