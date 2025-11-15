@@ -3,10 +3,10 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import MainPage from './MainPage/MainPage'
 import ListPage from './ListPage/ListPage'
 import CreatePostPage from './CreatePostPage/CreatePostPage'
-// import OwnerPage from './RollingPage/OwnerPage'
+import OwnerPage from './RollingPage/OwnerPage'
 import RecentPage from './ListPage/RecentPage'
 import Messagepage from './MessagePage/MessagePage'
-// import RecipientPage from './RollingPage/RecipientPage'
+import RecipientPage from './RollingPage/RecipientPage'
 
 function App() {
   return (
