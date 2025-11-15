@@ -153,12 +153,9 @@ function RecipientPage() {
   // ====== 반응(이모지) 추가 ======
   const handleAddReaction = async (emoji) => {
     if (!currentRecipientId) return;
-
     const emojiValue = emoji.emoji || emoji;
-
     try {
       const alias = EMOJI_TO_ALIAS[emojiValue] || emojiValue;
-
       await reactToRecipient(currentRecipientId, {
         emoji: alias,
         type: "increase",
@@ -228,7 +225,11 @@ function RecipientPage() {
         <div className="fixed top-0 left-0 w-full shadow-sm z-30 bg-white">
           <div className="w-full mx-auto">
             {screenMode === "mobile" ? (
-              <MobileHeader hideCreateButton />
+              <MobileHeader 
+              hideCreateButton
+              onAddReaction={handleAddReaction}
+              recipient={recipient}
+              reactions={reactions} />
             ) : (
               // OwnerPage와 동일한 헤더 컴포넌트 사용
               <HeaderNobutton /> 

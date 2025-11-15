@@ -4,16 +4,17 @@ import { ReactComponent as PlusIcon } from "../../img/add-24.svg";
 import { ReactComponent as ArrowIcon } from "../../img/arrow_down.svg";
 import Toast from "../Toast/Toast.jsx";
 import EmojiPicker from "emoji-picker-react";
+import { Link } from "react-router-dom";
 
 // props로 reactions(배열)와 onAddReaction(함수)을 받도록 수정
-function MobileHeader({ reactions = [], onAddReaction }) {
+function MobileHeader({ reactions = [], onAddReaction, recipient }) {
   // 상태 관리
   const [showEmojiMenu, setShowEmojiMenu] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [animatedId, setAnimatedId] = useState(null);
   const [popup, setPopup] = useState({ visible: false, message: "" });
-
+  console.log(recipient)
   // Toast 상태
   const [toastOpen, setToastOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
@@ -94,6 +95,7 @@ function MobileHeader({ reactions = [], onAddReaction }) {
     setTimeout(() => setAnimatedId(null), 250);
     setShowEmojiPicker(false);
   };
+  
 
   // 토글 함수들
   const toggleEmojiMenu = () => {
@@ -144,6 +146,9 @@ function MobileHeader({ reactions = [], onAddReaction }) {
   // 공통 버튼 스타일 (JSX/CSS는 변경 없음)
   const buttonClasses = `flex items-center justify-center rounded-full pl-[10px] pr-[8px] py-[4px] bg-[rgba(0,0,0,0.54)] text-white text-14-regular gap-2`;
 
+  const displayName = recipient?.name
+    ? `To. ${recipient.name}`
+    : "To. 이름 없는 대상";
   // 렌더링
   return (
     <>
@@ -159,9 +164,13 @@ function MobileHeader({ reactions = [], onAddReaction }) {
       {/* 수신자 헤더 */}
       <div className="border-b border-gray-200">
         <div className="flex items-center justify-between min-w-[360px] h-[52px] bg-white relative px-[24px] py-[12px] mx-auto">
-          <div className="text-gray-800 text-18-bold text-left">
-            To. Ashley Kim
-          </div>
+          <Link
+            to="/list"
+           className="text-gray-800 text-18-bold text-left"
+            title={displayName}
+          >
+            {displayName}
+          </Link>
         </div>
       </div>
 

@@ -286,6 +286,7 @@ function OwnerPage({ recipientId }) {
                 hideCreateButton
                 reactions={reactions}
                 onAddReaction={handleAddReaction}
+                recipient={recipient}
               />
             ) : (
               <HeaderNobutton />
