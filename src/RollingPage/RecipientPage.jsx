@@ -251,7 +251,7 @@ function RecipientPage() {
 
         {/* 메시지 카드 영역 (OwnerPage의 z-10 구조 유지) */}
         <div className="flex flex-col min-h-screen relative z-10">
-          <div className="flex-1 max-w-[1200px] mx-auto pt-[102px] sm:pt-[147px] lg:pt-[171px] pb-10 relative">
+          <div className="flex-1 w-full max-w-[1200px] mx-auto pt-[102px] sm:pt-[147px] lg:pt-[171px] pb-10 relative">
             {loading && <p className="text-center mt-10">로딩 중...</p>}
             {error && !loading && (
               <div className="text-center text-red-500 mt-10">데이터를 불러오지 못했습니다.</div>
