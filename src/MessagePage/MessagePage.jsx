@@ -112,16 +112,11 @@ function Send() {
   const imagesToDisplay = profileImages.slice(0, 10);
 
   // 폴로라 라이센스 삭제 함수
-useEffect(() => {
-    const intervalId = setInterval(() => {
+  useEffect(() => {
+    setTimeout(() => {
       const link = document.querySelector('a[href*="froala.com/wysiwyg_editor-download/"]');
-
-      if (link) { 
-        link.parentNode?.remove(); 
-        clearInterval(intervalId); 
-      }
-    }, 100);
-    return () => clearInterval(intervalId);
+      link?.parentNode?.remove();
+    }, 0);
   }, []);
 
   return (
