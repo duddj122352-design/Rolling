@@ -87,16 +87,18 @@ function Toast({
   return (
     <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in">
       <div className="
-        relative 
+        relative
         w-[100%]
+        sm:w-[524px]
         max-w-[524px]
-        h-16
-        bg-black/80
-        rounded-lg
-        flex flex-row items-center
-        px-[20px]
-        sm:px-[30px]
-        gap-3"
+        h-16 
+        bg-black/80 
+        rounded-lg 
+        flex flex-row items-center 
+        px-[20px] 
+        sm:px-[30px] 
+        gap-3
+      "
       >
         {/* 아이콘과 메시지 */}
         <div className="flex flex-row items-center gap-3 flex-1">
